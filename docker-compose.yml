@@ -1,0 +1,12 @@
+version: "3"
+services:
+  languagetool:
+    image: silviof/docker-languagetool
+    container_name: languagetool
+    restart: unless-stopped
+    ports:
+      - "8010:8010"
+    environment:
+      - langtool_languageModel=/ngrams
+    volumes:
+      - ./ngrams:/ngrams
