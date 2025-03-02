@@ -63,6 +63,7 @@ const getSuggestions = async (word) => {
           <small>{{ error.message }}</small>
         </li>
       </ul>
+      <pre>{{ result }}</pre>
     </div>
 
     <div v-if="suggestions.length > 0">
@@ -70,7 +71,6 @@ const getSuggestions = async (word) => {
       <ul>
         <li v-for="(suggestion, index) in suggestions" :key="index">{{ suggestion }}</li>
       </ul>
-      <pre>{{ result }}</pre>
     </div>
   </div>
 </template>
