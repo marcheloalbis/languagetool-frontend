@@ -4,35 +4,24 @@ import { ref } from 'vue';
 const text = ref('');
 const result = ref(null);
 const detectedLanguage = ref(null);
-const suggestions = ref([]);
 
 const checkText = async () => {
   try {
     const response = await fetch('http://localhost:8010/v2/check', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `text=${encodeURIComponent(text.value)}&language=auto`
+      body: `text=${encodeURIComponent(text.value)}&language=es`
     });
 
     const data = await response.json();
     result.value = data;
 
     // Extraer el idioma detectado correctamente
-    if (data.detectedLanguage) {
-      detectedLanguage.value = data.detectedLanguage;
+    if (data.language && data.language.detectedLanguage) {
+      detectedLanguage.value = data.language.detectedLanguage;
     }
   } catch (error) {
     console.error('Error al conectar con LanguageTool:', error);
-  }
-};
-
-const getSuggestions = async (word) => {
-  try {
-    const response = await fetch(`http://localhost:8010/v2/suggest?word=${encodeURIComponent(word)}&language=es`);
-    const data = await response.json();
-    suggestions.value = data.suggestions;
-  } catch (error) {
-    console.error('Error al obtener sugerencias:', error);
   }
 };
 </script>
@@ -49,35 +38,32 @@ const getSuggestions = async (word) => {
 
     <div v-if="detectedLanguage">
       <h3>Idioma Detectado:</h3>
-      <p>{{ detectedLanguage.name }} ({{ detectedLanguage.code }})</p>
+      <p><strong>Nombre:</strong> {{ detectedLanguage.name }}</p>
+      <p><strong>Código:</strong> {{ detectedLanguage.code }}</p>
+      <p><strong>Confianza:</strong> {{ (detectedLanguage.confidence * 100).toFixed(2) }}%</p>
     </div>
 
     <div v-if="result && result.matches.length > 0">
       <h3>Correcciones:</h3>
       <ul>
         <li v-for="(error, index) in result.matches" :key="index">
-          <strong>Error:</strong> "{{ error.context.text.substring(error.offset, error.offset + error.length) }}" 
-          <br />
-          <strong>Sugerencias:</strong> {{ error.replacements.map(rep => rep.value).join(', ') || 'Sin sugerencias' }}
-          <br />
-          <small>{{ error.message }}</small>
+          <p><strong>Error:</strong> <span class="error-text">{{ error.context.text.substring(error.offset, error.offset + error.length) }}</span></p>
+          <p><strong>Sugerencias:</strong> {{ error.replacements.map(rep => rep.value).join(', ') || 'Sin sugerencias' }}</p>
+          <p><strong>Mensaje:</strong> {{ error.message }}</p>
+          <p><strong>Tipo de error:</strong> {{ error.type.typeName }}</p>
+          <p><strong>Categoría:</strong> {{ error.rule.category.name }}</p>
+          <p><strong>Regla aplicada:</strong> {{ error.rule.description }}</p>
+          <p><strong>Oración completa:</strong> <i>{{ error.sentence }}</i></p>
         </li>
       </ul>
       <pre>{{ result }}</pre>
-    </div>
-
-    <div v-if="suggestions.length > 0">
-      <h3>Sugerencias para Palabras Incorrectas:</h3>
-      <ul>
-        <li v-for="(suggestion, index) in suggestions" :key="index">{{ suggestion }}</li>
-      </ul>
     </div>
   </div>
 </template>
 
 <style>
 .container {
-  max-width: 600px;
+  max-width: 700px;
   margin: auto;
   text-align: center;
   font-family: Arial, sans-serif;
@@ -121,7 +107,15 @@ ul {
 }
 
 li {
-  padding: 5px;
+  padding: 10px;
   border-bottom: 1px solid #ddd;
+  background: #f8f8f8;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.error-text {
+  color: red;
+  font-weight: bold;
 }
 </style>
