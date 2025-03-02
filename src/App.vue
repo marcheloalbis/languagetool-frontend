@@ -31,12 +31,14 @@ import HelloWorld from './components/HelloWorld.vue'
  -->
 
  <script setup>
+import Editor from './components/Editor.vue';
 import LanguageTool from './components/LanguageTool.vue';
 </script>
 
 <template>
   <div>
-    <h1>Frontend para LanguageTool</h1>
-    <LanguageTool />
+    <h1>Frontend corrector de texto</h1>
+  <!--   <LanguageTool /> -->
+  <Editor />
   </div>
 </template>

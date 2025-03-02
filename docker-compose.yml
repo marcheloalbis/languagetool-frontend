@@ -8,5 +8,6 @@ services:
       - "8010:8010"
     environment:
       - langtool_languageModel=/ngrams
+      - JAVA_OPTS=-Xmx2g
     volumes:
       - ./ngrams:/ngrams
